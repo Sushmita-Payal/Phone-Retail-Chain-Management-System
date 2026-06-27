@@ -1,0 +1,11 @@
+spring:
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:kafka:9092}
+  data:
+    mongodb:
+      uri: ${MONGODB_URI:mongodb://mongo:27017/store}
+
+logging:
+  level:
+    org.apache.kafka: INFO
+    org.springframework.data.mongodb: INFO

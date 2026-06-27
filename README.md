@@ -49,12 +49,15 @@ Client
 - **MongoDB** — Document storage (database-per-service)
 - **OpenAPI 3.0** — API specification with Springdoc Swagger UI
 - **Lombok**, **Jakarta Validation**, **Maven**
+- **Docker** — Multi-stage builds and Docker Compose orchestration
 
 ## Project Structure
 
 ```
 Phone-Retail-Chain-Management-System/
+├── docker-compose.yml        # MongoDB, Kafka, and both services
 ├── chain-store/
+│   ├── Dockerfile
 │   ├── src/main/java/com/example/chain_store/
 │   │   ├── Controller/       # ChainStoreController, PhoneStoreController
 │   │   ├── Kafka/            # PhoneStoreProducer, PhoneInventoryEvent
@@ -65,6 +68,7 @@ Phone-Retail-Chain-Management-System/
 │       └── chain-store.yaml    # OpenAPI spec
 │
 └── inventory-service/
+    ├── Dockerfile
     ├── src/main/java/com/example/phone_inventory/
     │   ├── Controller/       # PhoneInventoryController (direct REST)
     │   ├── Kafka/            # InventoryKafkaConsumer
@@ -78,6 +82,12 @@ Phone-Retail-Chain-Management-System/
 
 ## Prerequisites
 
+**Option A — Docker (recommended)**
+
+- Docker Desktop (or Docker Engine + Docker Compose v2)
+
+**Option B — Local development**
+
 - Java 17+
 - Maven 3.6+
 - MongoDB (running on `localhost:27017`)
@@ -85,11 +95,44 @@ Phone-Retail-Chain-Management-System/
 
 ## Getting Started
 
-### 1. Start MongoDB and Kafka
+### Option A: Run with Docker Compose
+
+From the repository root:
+
+```bash
+docker compose up --build
+```
+
+This starts:
+
+| Container | Port | Description |
+|-----------|------|-------------|
+| `mongo` | 27017 | MongoDB |
+| `kafka` | 9092 | Apache Kafka (KRaft mode) |
+| `inventory-service` | 8081 | Inventory microservice |
+| `chain-store` | 8082 | Store management + Kafka gateway |
+
+Services use the `docker` Spring profile with container hostnames (`mongo`, `kafka`) instead of `localhost`.
+
+Stop and remove containers:
+
+```bash
+docker compose down
+```
+
+Remove containers and persisted MongoDB data:
+
+```bash
+docker compose down -v
+```
+
+### Option B: Run locally with Maven
+
+#### 1. Start MongoDB and Kafka
 
 Ensure MongoDB and Kafka are running locally before starting the services.
 
-### 2. Run inventory-service
+#### 2. Run inventory-service
 
 ```bash
 cd inventory-service
@@ -99,7 +142,7 @@ mvnw.cmd spring-boot:run      # Windows
 
 Service starts on **http://localhost:8081**
 
-### 3. Run chain-store
+#### 3. Run chain-store
 
 ```bash
 cd chain-store
