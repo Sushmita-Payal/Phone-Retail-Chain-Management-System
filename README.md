@@ -126,6 +126,32 @@ Remove containers and persisted MongoDB data:
 docker compose down -v
 ```
 
+### Verify the full flow
+
+With all containers running, use the included test script:
+
+**Windows (PowerShell):**
+
+```powershell
+.\scripts\test-flow.ps1
+```
+
+**Linux/macOS:**
+
+```bash
+chmod +x scripts/test-flow.sh
+./scripts/test-flow.sh
+```
+
+The script runs this flow:
+
+1. Create a store via **chain-store** (`POST /phone-store/store/createStore`)
+2. Fetch the store by ID (`GET /phone-store/store/Store1`)
+3. Add phones via **chain-store** Kafka gateway (`POST /phone-store/store/addPhones`)
+4. Verify inventory on **inventory-service** (`GET /phone-inventory/inventory/model/iPhone 15`)
+
+If everything works, you should see `SUCCESS: End-to-end flow completed.` with the inventory details.
+
 ### Option B: Run locally with Maven
 
 #### 1. Start MongoDB and Kafka
