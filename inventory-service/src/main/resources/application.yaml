@@ -1,0 +1,24 @@
+spring:
+  application:
+    name: inventory-service
+
+  data:
+    mongodb:
+      uri: mongodb://localhost:27017/phone-store
+
+  kafka:
+    consumer:
+      group-id: inventory-group
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        spring.json.value.default.type: com.example.phone_inventory.Kafka.PhoneInventoryEvent
+        spring.json.trusted.packages: "*"
+    listener:
+      autoStartup: true
+
+
+logging:
+  level:
+    com.inventory: DEBUG
+    org.springframework.data.mongodb: DEBUG

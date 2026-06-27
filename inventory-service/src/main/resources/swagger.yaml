@@ -1,0 +1,332 @@
+openapi: 3.0.0
+info:
+  title: Phone Inventory Service API
+  version: 1.0.0
+
+servers:
+  - url: http://localhost:8081/phone-inventory
+
+tags:
+  - name: Phone-Store
+    externalDocs:
+      description: Find out more
+      url: https://swagger.io
+
+paths:
+  /inventory:
+    post:
+      summary: Add one or more phone items
+      operationId: addItems
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/PhoneInventoryItem'
+      responses:
+        '201':
+          description: Items added successfully
+        '400':
+          description: Invalid input
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /inventory/id/{id}:
+    get:
+      summary: Get phone item by ID
+      operationId: getItemById
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Item found successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PhoneInventoryItemResponse'
+        '400':
+          description: Invalid ID format
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Item not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+    delete:
+      summary: Delete phone item by ID
+      operationId: deleteItemById
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Item deleted successfully
+        '404':
+          description: Item not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /inventory/ids:
+    get:
+      summary: Get multiple phone items by IDs
+      operationId: getItemsByIds
+      parameters:
+        - name: ids
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Items found successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/PhoneInventoryItem'
+        '400':
+          description: Invalid IDs
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+    delete:
+      summary: Delete multiple phone items by IDs
+      operationId: deleteItemsByIds
+      parameters:
+        - name: ids
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Items deleted successfully
+        '400':
+          description: Invalid IDs
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /inventory/model/{model}:
+    get:
+      summary: Get phone item by model
+      operationId: getItemByModel
+      parameters:
+        - name: model
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Item found successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PhoneInventoryItem'
+        '404':
+          description: Model not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /inventory/models:
+    get:
+      summary: Get multiple phone items by models
+      operationId: getItemsByModels
+      parameters:
+        - name: models
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Items found successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/PhoneInventoryItem'
+        '400':
+          description: Invalid models input
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /inventory/{id}/increase:
+    put:
+      summary: Increase phone quantity by given value
+      operationId: increaseItemQuantity
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: Quantity
+          in: header
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Quantity increased successfully
+        '400':
+          description: Invalid input or ID
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Item not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /inventory/decrease:
+    put:
+      summary: Decrease phone quantity by given value
+      operationId: decreaseItemQuantity
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: string
+                quantity:
+                  type: integer
+              required:
+                - id
+                - quantity
+      responses:
+        '200':
+          description: Quantity decreased successfully
+        '400':
+          description: Invalid input
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Item not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+components:
+  schemas:
+    PhoneInventoryItemResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          example: "abc123"
+        type:
+          type: string
+          format: int64
+          minLength: 5
+          maxLength: 15
+          example: "100000"
+        model:
+          type: string
+          example: Apple
+          enum: [Apple, Realme, Samsung, Google]
+        quantity:
+          type: integer
+          minimum: 0
+          maximum: 1000
+          format: int32
+          example: 25
+        price:
+          type: number
+          format: double
+          example: 1000.00
+        isAvailable:
+          type: boolean
+          example: true
+        dateAdded:
+          type: string
+          format: date-time
+
+    PhoneInventoryItem:
+      type: object
+      properties:
+        type:
+          type: string
+          format: int64
+          minLength: 5
+          maxLength: 15
+          example: "100000"
+        model:
+          type: string
+          example: Apple
+          enum: [Apple, Realme, Samsung, Google]
+        quantity:
+          type: integer
+          minimum: 0
+          maximum: 1000
+          format: int32
+          example: 25
+        price:
+          type: number
+          format: double
+          example: 1000.00
+        isAvailable:
+          type: boolean
+          example: true
+        storeId:
+          type: string
+          example: Store2
+        dateAdded:
+          type: string
+          format: date-time
+
+    Error:
+      type: object
+      properties:
+        code:
+          type: string
+          example: "400"
+        message:
+          type: string
+          example: "Invalid input or item not found"
+      required:
+        - code
+        - message
